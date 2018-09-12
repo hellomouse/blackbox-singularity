@@ -4,5 +4,6 @@
         - You can set a string name
     - Conditionals for parts
         - Write code to update AiData
+            - Or just have sliders to adjust change
         - Write code to go to next ChatNode
     - Auto-generate the big arraylist and keep track of ids
