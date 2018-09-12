@@ -1,1 +1,8 @@
 - Editor for creating the story easily
+    - Goto for parts
+        - All parts generate a numeric ID
+        - You can set a string name
+    - Conditionals for parts
+        - Write code to update AiData
+        - Write code to go to next ChatNode
+    - Auto-generate the big arraylist and keep track of ids

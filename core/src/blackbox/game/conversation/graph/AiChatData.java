@@ -1,4 +1,4 @@
-package blackbox.game.conversation.tree;
+package blackbox.game.conversation.graph;
 
 import java.util.*;
 

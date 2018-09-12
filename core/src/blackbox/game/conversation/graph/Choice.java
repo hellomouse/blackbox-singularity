@@ -1,6 +1,6 @@
-package blackbox.game.conversation.tree;
+package blackbox.game.conversation.graph;
 
-public class Choice {
+public abstract class Choice {
     /**
      * label: Label for the choice
      * displayText: Text to display if not equal to label
@@ -39,19 +39,17 @@ public class Choice {
      * if this choice was selected. Use
      * this.data and its methods to do so.
      */
-    public void updateAiChatData() {
-        /* Default: Do nothing */
-    }
+    public abstract void updateAiChatData();
 
     /**
      * Return the chat node to switch to when
-     * the choice is made.
+     * the choice is made. If it returns null,
+     * the game will end (Back to beginning
+     * of the chapter)
+     *
      * @return ChatNode to switch to
      */
-    public ChatNode getNext() {
-        /* Default: return null */
-        return null;
-    }
+    public abstract ChatNode getNext();
 
     /** Getter and setter */
     public String getLabel() {
