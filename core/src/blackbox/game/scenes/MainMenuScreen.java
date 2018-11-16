@@ -3,10 +3,12 @@ package blackbox.game.scenes;
 import blackbox.game.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class MainMenuScreen implements Screen {
     final BlackboxGame game;
@@ -14,23 +16,31 @@ public class MainMenuScreen implements Screen {
 
     SpriteBatch batch;
     Texture img;
+    TextureRegion background;
 
+    public Music backgroundMusic;
+
+    /* Config for menu */
     private int textLeft, textTop, menuShift, menuSpacing;
 
     public MainMenuScreen(final BlackboxGame game) {
         this.game = game;
 
         batch = new SpriteBatch();
-        img = new Texture("badlogic.jpg");
+        img = new Texture("background/title-temp.png");
+        background = new TextureRegion(img, 0, 0, 1920, 1080);
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
 
-        /* Config for menu */
+        /* Load music */
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
+
+        /* Text spacing */
         textLeft = Config.WINDOW_WIDTH / 30;
-        textTop = (int)(Config.WINDOW_HEIGHT * 0.75);
-        menuShift = 120 + (int)(Config.WINDOW_HEIGHT * 0.06);
-        menuSpacing = 30;
+        textTop = (int)(Config.WINDOW_HEIGHT * 0.7) - BlackboxGame.fontSizes[0];
+        menuShift = BlackboxGame.fontSizes[0] * 2 + (int)(Config.WINDOW_HEIGHT * 0.06);
+        menuSpacing = BlackboxGame.fontSizes[2] * 2;
     }
 
     @Override
@@ -40,10 +50,11 @@ public class MainMenuScreen implements Screen {
 
         batch.begin();
 
-        /* Render title and options */
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        /* Render title and options */
         game.robotoLightFont.get("title2").draw(batch, "BLACKBOX", textLeft, textTop);
-        game.robotoLightFont.get("title1").draw(batch, "SINGULARITY", textLeft, textTop - 64);
+        game.robotoLightFont.get("title1").draw(batch, "SINGULARITY", textLeft, textTop - BlackboxGame.fontSizes[0]);
 
         game.robotoLightFont.get("normal").draw(batch, "New Game", textLeft, textTop - menuShift);
         game.robotoLightFont.get("normal").draw(batch, "Continue Game", textLeft, textTop - menuShift - menuSpacing);
@@ -51,7 +62,6 @@ public class MainMenuScreen implements Screen {
         game.robotoLightFont.get("normal").draw(batch, "Extras", textLeft, textTop - menuShift - menuSpacing * 3);
         game.robotoLightFont.get("normal").draw(batch, "Quit Game", textLeft, textTop - menuShift - menuSpacing * 4);
 
-        //batch.draw(img, 0, 0);
         batch.end();
 
         /*if (Gdx.input.isTouched()) {
@@ -66,9 +76,10 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-        // start the playback of the background music
-        // when the screen is shown
-        // rainMusic.play();
+        /* Start playing background music
+         * when MainMenuScreen is loaded */
+        backgroundMusic.play();
+        backgroundMusic.setLooping(true);
     }
 
     @Override
@@ -77,16 +88,19 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void pause() {
+        backgroundMusic.pause();
     }
 
     @Override
     public void resume() {
+        backgroundMusic.play();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
         img.dispose();
+        backgroundMusic.dispose();
     }
 
 }
