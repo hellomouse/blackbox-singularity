@@ -7,3 +7,11 @@
             - Or just have sliders to adjust change
         - Write code to go to next ChatNode
     - Auto-generate the big arraylist and keep track of ids
+        - Use libgdx arrays
+
+NOTE: BOTTOM LEFT CORNER IS TOP!
+
+
+Add this
+    https://stackoverflow.com/questions/24879812/libgdx-project-exception-in-thread-lwjgl-application-couldnt-load-file-erro
+    to the readme

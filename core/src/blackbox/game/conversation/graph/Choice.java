@@ -17,7 +17,8 @@ public abstract class Choice {
      * @param data        The data the AI player has
      * @param label       Label for the choice
      * @param displayText Text to display when choice is made,
-     *                    if different from label
+     *                    if different from label (ie, label = "[Slap keyboard]",
+     *                    displayText = "The player slaps the keyboard")
      */
     public Choice(AiChatData data, String label, String displayText) {
         this.data = data;
