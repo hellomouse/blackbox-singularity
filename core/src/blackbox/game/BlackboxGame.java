@@ -1,10 +1,15 @@
 package blackbox.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ObjectMap;
+
+import contribs.utils.*;
+import contribs.postprocessing.*;
+import contribs.postprocessing.effects.*;
 
 import blackbox.game.scenes.*;
 
@@ -20,19 +25,30 @@ public class BlackboxGame extends Game {
     public static final String[] fontSizeNames = {"title2", "title1", "normal", "small"};
     public static final int[] fontSizes = {70, 38, 24, 18};
 
-    public ObjectMap<String, BitmapFont> ocrNormalFont;
+    public ObjectMap<String, BitmapFont> monoNormalFont;
     public ObjectMap<String, BitmapFont> robotoLightFont;
+
+    private PostProcessor postProcessor;
 
     @Override
     public void create() {
         /* Create fonts */
         //ocrNormalFont = generateFont("fonts/ocr_normal.fnt");
 
-
-        robotoLightFont = generateFont("fonts/roboto_light.ttf");
+        this.generateFonts();
 
 
         this.setScreen(new MainMenuScreen(this));
+
+        ShaderLoader.BasePath = "data/shaders/";
+        postProcessor = new PostProcessor( false, false, true ); // TODO last argument is isDesktop
+
+        Bloom bloom = new Bloom( (int)(Gdx.graphics.getWidth() * 0.25f), (int)(Gdx.graphics.getHeight() * 0.25f) );
+        Curvature fishEye = new Curvature();
+        fishEye.setDistortion(-0.15f);
+
+        postProcessor.addEffect(bloom);
+        postProcessor.addEffect(fishEye);
     }
 
     /**
@@ -50,7 +66,10 @@ public class BlackboxGame extends Game {
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
             /* Generate the font and add to map */
-            parameter.size = fontSizes[i];
+            parameter.size = (int)((double)fontSizes[i] / 1080 * Gdx.graphics.getHeight());
+            parameter.minFilter = Texture.TextureFilter.Nearest;
+            parameter.magFilter = Texture.TextureFilter.MipMapLinearNearest;
+
             BitmapFont temp = generator.generateFont(parameter);
             map.put(fontSizeNames[i], temp);
 
@@ -60,14 +79,26 @@ public class BlackboxGame extends Game {
         return map;
     }
 
+    public void generateFonts() {
+        monoNormalFont = generateFont("fonts/mono.ttf");
+        robotoLightFont = generateFont("fonts/roboto_light.ttf");
+    }
+
+    @Override
+    public void resume() {
+        postProcessor.rebind();
+    }
+
 
 	@Override
 	public void render () {
+        postProcessor.capture();
         super.render();
+        postProcessor.render();
 	}
 	
 	@Override
 	public void dispose () {
-
+        postProcessor.dispose();
 	}
 }

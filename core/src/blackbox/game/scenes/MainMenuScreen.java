@@ -1,14 +1,21 @@
 package blackbox.game.scenes;
 
 import blackbox.game.*;
+import blackbox.game.graphics.scenes.OfficeNormalBackgroundScene;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import java.awt.Window;
 
 public class MainMenuScreen implements Screen {
     final BlackboxGame game;
@@ -20,6 +27,8 @@ public class MainMenuScreen implements Screen {
 
     public Music backgroundMusic;
 
+    private OfficeNormalBackgroundScene scene;
+
     /* Config for menu */
     private int textLeft, textTop, menuShift, menuSpacing;
 
@@ -27,8 +36,7 @@ public class MainMenuScreen implements Screen {
         this.game = game;
 
         batch = new SpriteBatch();
-        img = new Texture("background/title-temp.png");
-        background = new TextureRegion(img, 0, 0, 1920, 1080);
+        scene = new OfficeNormalBackgroundScene();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
@@ -48,19 +56,36 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.begin();
+        // TODO replace background with class
 
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        batch.begin();
+        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        scene.render(delta, batch, game);
+
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            //
+            scene.scroll -= 10;
+        } if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            scene.scroll += 10;
+        } if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+            scene.typeText("hello there BWBellairs u suck lel", 20);
+        }
+
 
         /* Render title and options */
-        game.robotoLightFont.get("title2").draw(batch, "BLACKBOX", textLeft, textTop);
+        /*game.robotoLightFont.get("title2").draw(batch, "BLACKBOX", textLeft, textTop);
         game.robotoLightFont.get("title1").draw(batch, "SINGULARITY", textLeft, textTop - BlackboxGame.fontSizes[0]);
 
         game.robotoLightFont.get("normal").draw(batch, "New Game", textLeft, textTop - menuShift);
         game.robotoLightFont.get("normal").draw(batch, "Continue Game", textLeft, textTop - menuShift - menuSpacing);
         game.robotoLightFont.get("normal").draw(batch, "Settings", textLeft, textTop - menuShift - menuSpacing * 2);
         game.robotoLightFont.get("normal").draw(batch, "Extras", textLeft, textTop - menuShift - menuSpacing * 3);
-        game.robotoLightFont.get("normal").draw(batch, "Quit Game", textLeft, textTop - menuShift - menuSpacing * 4);
+        game.robotoLightFont.get("normal").draw(batch, "Credits", textLeft, textTop - menuShift - menuSpacing * 4);
+        game.robotoLightFont.get("normal").draw(batch, "Quit Game", textLeft, textTop - menuShift - menuSpacing * 5);
+
+        game.robotoLightFont.get("small").draw(batch, Config.MENU_NOTE, Config.WINDOW_WIDTH - 700, 100);*/
 
         batch.end();
 
@@ -72,14 +97,15 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        game.generateFonts();
     }
 
     @Override
     public void show() {
         /* Start playing background music
          * when MainMenuScreen is loaded */
-        backgroundMusic.play();
-        backgroundMusic.setLooping(true);
+        //backgroundMusic.play();
+        //backgroundMusic.setLooping(true);
     }
 
     @Override
@@ -93,7 +119,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resume() {
-        backgroundMusic.play();
+        //backgroundMusic.play();
     }
 
     @Override
@@ -102,5 +128,4 @@ public class MainMenuScreen implements Screen {
         img.dispose();
         backgroundMusic.dispose();
     }
-
 }

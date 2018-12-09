@@ -11,6 +11,8 @@
 
 NOTE: BOTTOM LEFT CORNER IS TOP!
 
+Background scene text glithciness
+Implement draw text in region
 
 Add this
     https://stackoverflow.com/questions/24879812/libgdx-project-exception-in-thread-lwjgl-application-couldnt-load-file-erro
