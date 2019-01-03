@@ -11,9 +11,35 @@
 
 NOTE: BOTTOM LEFT CORNER IS TOP!
 
-Background scene text glithciness
-Implement draw text in region
+
+
+Implement story runner code
+
+Move conifgs to 1 file
+
+Make every variable public
+    except read only
+
+
+title screen
+    randomize art
+    different title screen depending on level
+background scene
+    don't hard code image size, use customizable image size (constructor)
+
+
+Class implementaitons
+    Conversation
+        Import AiData automatically
+        naming scheme for title/subtitle
+
+glithcIntensity variable in BackgroundScene
+
+scale the font when window resize
+
 
 Add this
     https://stackoverflow.com/questions/24879812/libgdx-project-exception-in-thread-lwjgl-application-couldnt-load-file-erro
     to the readme
+	
+	https://www.google.com/search?hl=en&authuser=0&biw=1536&bih=754&tbm=isch&sa=1&ei=KC4EXL3DEZe9jgSr0KrABw&q=photocopied+photo&oq=photocopied+photo&gs_l=img.3...2393.5107..5241...0.0..0.73.1101.18......1....1..gws-wiz-img.....0..0j35i39j0i67j0i10j0i8i30j0i24.LDewFePo3T8#imgdii=IdaCoa8RG94WuM:&imgrc=6p4XZerGzO7a0M:

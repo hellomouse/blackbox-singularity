@@ -2,16 +2,23 @@ package blackbox.game.conversation.graph;
 
 import blackbox.game.conversation.Conversation;
 
+/**
+ * Choice class, represents a choice you can go
+ * to; contains code that is run when the choice
+ * is selected. This class is abstract; you should
+ * extend this for EVERY choice you create.
+ *
+ * @author Bowserinator
+ */
 public abstract class Choice {
     /**
-     * label: Label for the choice
-     * displayText: Text to display if not equal to label
-     * enabled: If false choice won't be allowed
+     * label        - Label for the choice
+     * displayText  - Text to display if not equal to label
+     * enabled      - If false choice won't be allowed
      */
-    private String label;
-    private String displayText;
-
-    private boolean enabled;
+    public String label;
+    public String displayText;
+    public boolean enabled;
 
     /**
      * Construct a Choice
@@ -30,29 +37,10 @@ public abstract class Choice {
      * AI data here. This method should modify the current chat
      * node in the conversation
      *
-     * Also this method should switch the current chatnode
+     * Also this method should switch the current chatnode. You
+     * need to override this method.
      *
      * @param conversation The conversation the choice belongs to
      */
     public abstract void onSelect(Conversation conversation);
-
-    /** Getter and setter */
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String label) {
-        this.label = label;
-    }
-    public boolean isEnabled() {
-        return enabled;
-    }
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-    public String getDisplayText() {
-        return displayText;
-    }
-    public void setDisplayText(String displayText) {
-        this.displayText = displayText;
-    }
 }

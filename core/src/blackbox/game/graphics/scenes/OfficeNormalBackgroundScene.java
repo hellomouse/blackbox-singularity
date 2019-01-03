@@ -1,6 +1,8 @@
 package blackbox.game.graphics.scenes;
 
+import blackbox.game.BlackboxGame;
 import blackbox.game.graphics.BackgroundScene;
+import blackbox.game.util.MonospaceFontData;
 
 /**
  * The Background for the generic office where
@@ -8,13 +10,15 @@ import blackbox.game.graphics.BackgroundScene;
  */
 public class OfficeNormalBackgroundScene extends BackgroundScene {
     private static final int SCREEN_PADDING = 20;
-    private static final int[] SCREEN_RECT = {636 + SCREEN_PADDING, 687 - SCREEN_PADDING,
-            671 - SCREEN_PADDING * 2, 416 - SCREEN_PADDING * 2};
+    private static final int[] SCREEN_RECT = {1850 + SCREEN_PADDING, 767 - SCREEN_PADDING,
+            861 - SCREEN_PADDING * 2, 396 - SCREEN_PADDING * 2};
 
     /**
      * Construct a new OfficeNormalBackgroundScene
+     * @param game BlackboxGame object
      */
-    public OfficeNormalBackgroundScene() {
-        super(SCREEN_RECT , 0.05f, "OfficeNormal", "background/title-temp.png");
+    public OfficeNormalBackgroundScene(BlackboxGame game) {
+        super(SCREEN_RECT , 0.05f, "OfficeNormal", "background/panorama-test.jpg",
+                new MonospaceFontData(game.monoNormalFont.get("title1")));
     }
 }

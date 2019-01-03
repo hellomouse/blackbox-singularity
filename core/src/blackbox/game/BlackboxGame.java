@@ -1,10 +1,12 @@
 package blackbox.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.ObjectMap;
 
 import contribs.utils.*;
@@ -22,13 +24,13 @@ public class BlackboxGame extends Game {
      * TODO pregenerate fonts, but also have method
      * to dynamically create font
      */
-    public static final String[] fontSizeNames = {"title2", "title1", "normal", "small"};
-    public static final int[] fontSizes = {70, 38, 24, 18};
+    public static final String[] fontSizeNames = {"title3", "title2", "title1", "normal", "small"};
+    public static final int[] fontSizes = {70, 44, 38, 24, 18};
 
     public ObjectMap<String, BitmapFont> monoNormalFont;
     public ObjectMap<String, BitmapFont> robotoLightFont;
 
-    private PostProcessor postProcessor;
+    public TextButton.TextButtonStyle textButtonStyle1;
 
     @Override
     public void create() {
@@ -37,18 +39,12 @@ public class BlackboxGame extends Game {
 
         this.generateFonts();
 
+        textButtonStyle1 = new TextButton.TextButtonStyle();
+        textButtonStyle1.font = this.robotoLightFont.get("title1");
+        textButtonStyle1.fontColor = Color.WHITE;
 
         this.setScreen(new MainMenuScreen(this));
 
-        ShaderLoader.BasePath = "data/shaders/";
-        postProcessor = new PostProcessor( false, false, true ); // TODO last argument is isDesktop
-
-        Bloom bloom = new Bloom( (int)(Gdx.graphics.getWidth() * 0.25f), (int)(Gdx.graphics.getHeight() * 0.25f) );
-        Curvature fishEye = new Curvature();
-        fishEye.setDistortion(-0.15f);
-
-        postProcessor.addEffect(bloom);
-        postProcessor.addEffect(fishEye);
     }
 
     /**
@@ -86,19 +82,17 @@ public class BlackboxGame extends Game {
 
     @Override
     public void resume() {
-        postProcessor.rebind();
+
     }
 
 
 	@Override
 	public void render () {
-        postProcessor.capture();
         super.render();
-        postProcessor.render();
 	}
 	
 	@Override
 	public void dispose () {
-        postProcessor.dispose();
+
 	}
 }
