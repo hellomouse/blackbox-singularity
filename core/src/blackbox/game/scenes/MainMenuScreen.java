@@ -1,116 +1,118 @@
 package blackbox.game.scenes;
 
 import blackbox.game.*;
-import blackbox.game.graphics.BackgroundScene;
+import blackbox.game.graphics.BlackBoxScreen;
 import blackbox.game.graphics.scenes.TitleScreenScene;
-import blackbox.game.util.MathUtil;
-import contribs.postprocessing.PostProcessor;
-import contribs.postprocessing.effects.Bloom;
-import contribs.postprocessing.effects.Curvature;
-import contribs.utils.ShaderLoader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.utils.Array;
 
-
-public class MainMenuScreen implements Screen {
-    public final BlackboxGame game;
-
-    private OrthographicCamera camera;
-    private SpriteBatch batch;
+/**
+ * The MainMenuScreen, which renders the main
+ * menu graphics and handles the buttons in
+ * the main menu.
+ *
+ * @author Bowserinator
+ */
+public class MainMenuScreen extends BlackBoxScreen {
+    /**
+     * backgroundMusic  - Music object that plays
+     * guiTable         - Table containing buttons
+     * stage            - Stage to contain the table
+     */
     private Music backgroundMusic;
     private Table guiTable;
     private Stage stage;
 
-    private PostProcessor bgProcessor;
+    /**
+     * Generator for main menu options. menuButtonLabels is the array
+     * of all button labels, add / remove strings here to create / delete
+     * buttons in the main menu
+     */
+    private static final String[] menuButtonLabels = { "New Game", "Continue Game", "Settings", "Extras", "Credits", "Quit Game" };
 
-    private BackgroundScene scene;
+    /**
+     * Factory for the main menu screen. Returns a new screen depending
+     * on the index given.
+     *
+     * @param index Button index (index in menuButtonlabels)
+     * @param game  Game object the screen contains
+     * @return Screen object to go to
+     */
+    private static Screen generateScreenFromIndex(int index, BlackboxGame game) {
+        switch (index) {
+            case 0: return new TestScreen(game);
+            case 1: return new TestScreen(game);
+            case 2: return new TestScreen(game);
+            case 3: return new TestScreen(game);
+            case 4: return new TestScreen(game);
+            case 5: return new TestScreen(game);
+        }
+        return null;
+    }
 
-
+    /**
+     * Construct a new MainMenuScreen
+     * @param game Game object screen should have
+     */
     public MainMenuScreen(final BlackboxGame game) {
+        super(game, new TitleScreenScene(game));
+
+        /* Construct stage that holds GUI */
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-
-        this.game = game;
-
-        batch = new SpriteBatch();
-        scene = new TitleScreenScene(game);
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
 
         /* Load music */
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
 
         /* Generate the main menu buttons */
-        Array<TextButton> buttons = new Array<TextButton>();
-        String[] menuButtonLabels = { "New Game", "Continue Game", "Settings", "Extras", "Credits", "Quit Game" };
         guiTable = new Table();
-
         guiTable.setPosition(0, Gdx.graphics.getHeight() / 6);
         guiTable.setSize(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() * 3 / 4);
 
-        for (String label : menuButtonLabels) {
-            TextButton button = new TextButton(label, game.textButtonStyle1);
-            guiTable.add(button).left().pad(4);
-            buttons.add(button);
+        /* Generate the main menu table
+         * Each button has an input listener tat changes the current
+         * game screen, using a static factory method that returns
+         * the scene to go to based on index.
+         *
+         * Index will be kept track of in the index array, where
+         * the first element is the value i in the loop, since
+         * the InputListener requires parameters to be final
+         */
+        final int[] index = {0};
 
+        for (int i = 0; i < menuButtonLabels.length; i++) {
+            TextButton button = new TextButton(menuButtonLabels[i], game.textButtonStyle1);
+            index[0] = i;
+
+            button.addListener(new InputListener(){
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    dispose(); // Run first to dispose of shader so new screen can use shader
+                    game.setScreen(generateScreenFromIndex(index[0], game));
+                    return true;
+                }});
+
+            guiTable.add(button).left().pad(4);
             guiTable.row();
         }
 
         stage.addActor(guiTable);
-
-        ShaderLoader.BasePath = Config.SHADER_PATH;
-        bgProcessor = new PostProcessor( false, false, Config.isDesktop);
-
-        Bloom bloom = new Bloom( (int)(Gdx.graphics.getWidth() * 0.25f), (int)(Gdx.graphics.getHeight() * 0.25f) );
-        Curvature fishEye = new Curvature();
-        fishEye.setDistortion(-0.14f);
-
-        bgProcessor.addEffect(bloom);
-        bgProcessor.addEffect(fishEye);
-
     }
 
     @Override
     public void render(float delta) {
-        bgProcessor.capture();
+        super.render(delta);
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        batch.begin();
-        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        scene.render(delta, batch, game);
-
-        batch.end();
-        bgProcessor.render();
-
-
-        batch.begin();
-        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        scene.renderUI(delta, batch, game);
-
-        batch.end();
-
+        /* Only new thing to render are buttons */
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
-
-        /*if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
-            dispose();
-        }*/
     }
 
 
@@ -121,10 +123,8 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-        /* Start playing background music
-         * when TestScreen is loaded */
-        //backgroundMusic.play();
-        //backgroundMusic.setLooping(true);
+        backgroundMusic.play();
+        backgroundMusic.setLooping(true);
     }
 
     @Override
@@ -138,17 +138,14 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resume() {
-        //backgroundMusic.play();
-
-        bgProcessor.rebind();
+        super.resume();
+        backgroundMusic.play();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
+        super.dispose();
         stage.dispose();
         backgroundMusic.dispose();
-
-        bgProcessor.dispose();
     }
 }

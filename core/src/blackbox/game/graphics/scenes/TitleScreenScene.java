@@ -1,6 +1,7 @@
 package blackbox.game.graphics.scenes;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -71,8 +72,10 @@ public class TitleScreenScene extends BackgroundScene {
                 w, (int)(w * hwRatio));
 
         /* Draw little message */
+        game.robotoLightFont.get("normal").setColor(Color.GRAY);
         game.robotoLightFont.get("normal").draw(batch, Config.MENU_NOTE,
                 (int)(Gdx.graphics.getWidth() * Config.LOGO_PADDING),
                 (int)(Gdx.graphics.getWidth() * Config.LOGO_PADDING));
+        game.robotoLightFont.get("normal").setColor(Color.WHITE); // Reset color
     }
 }

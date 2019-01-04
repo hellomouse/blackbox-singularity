@@ -1,6 +1,7 @@
 package blackbox.game.scenes;
 
 import blackbox.game.*;
+import blackbox.game.graphics.BlackBoxScreen;
 import blackbox.game.graphics.scenes.OfficeNormalBackgroundScene;
 
 import com.badlogic.gdx.Gdx;
@@ -17,29 +18,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.awt.Window;
 
-public class TestScreen implements Screen {
-    final BlackboxGame game;
-    OrthographicCamera camera;
+public class TestScreen extends BlackBoxScreen {
 
-    SpriteBatch batch;
     Texture img;
     TextureRegion background;
 
     public Music backgroundMusic;
 
-    private OfficeNormalBackgroundScene scene;
 
     /* Config for menu */
     private int textLeft, textTop, menuShift, menuSpacing;
 
     public TestScreen(final BlackboxGame game) {
-        this.game = game;
-
-        batch = new SpriteBatch();
-        scene = new OfficeNormalBackgroundScene(game);
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+        super(game, new OfficeNormalBackgroundScene(game));
 
         /* Load music */
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
@@ -56,43 +47,14 @@ public class TestScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // TODO replace background with class
-
-
-        batch.begin();
-        batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        scene.render(delta, batch, game);
+        super.render(delta);
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            //
             scene.scroll -= 20;
         } if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             scene.scroll += 20;
         }
 
-        /* Render title and options */
-        /*game.robotoLightFont.get("title2").draw(batch, "BLACKBOX", textLeft, textTop);
-        game.robotoLightFont.get("title1").draw(batch, "SINGULARITY", textLeft, textTop - BlackboxGame.fontSizes[0]);
-
-        game.robotoLightFont.get("normal").draw(batch, "New Game", textLeft, textTop - menuShift);
-        game.robotoLightFont.get("normal").draw(batch, "Continue Game", textLeft, textTop - menuShift - menuSpacing);
-        game.robotoLightFont.get("normal").draw(batch, "Settings", textLeft, textTop - menuShift - menuSpacing * 2);
-        game.robotoLightFont.get("normal").draw(batch, "Extras", textLeft, textTop - menuShift - menuSpacing * 3);
-        game.robotoLightFont.get("normal").draw(batch, "Credits", textLeft, textTop - menuShift - menuSpacing * 4);
-        game.robotoLightFont.get("normal").draw(batch, "Quit Game", textLeft, textTop - menuShift - menuSpacing * 5);
-
-        game.robotoLightFont.get("small").draw(batch, Config.MENU_NOTE, Config.WINDOW_WIDTH - 700, 100);*/
-
-        batch.end();
-
-        /*if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen(game));
-            dispose();
-        }*/
     }
 
     @Override

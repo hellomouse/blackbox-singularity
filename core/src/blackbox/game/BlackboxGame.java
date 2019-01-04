@@ -41,7 +41,8 @@ public class BlackboxGame extends Game {
 
         textButtonStyle1 = new TextButton.TextButtonStyle();
         textButtonStyle1.font = this.robotoLightFont.get("title1");
-        textButtonStyle1.fontColor = Color.WHITE;
+        textButtonStyle1.fontColor = Color.LIGHT_GRAY;
+        textButtonStyle1.overFontColor = Color.WHITE;
 
         this.setScreen(new MainMenuScreen(this));
 
