@@ -18,7 +18,9 @@ public class DrawText {
     /**
      * Render some text in a region. NOTE: Only works
      * for monospaced fonts; you may expect some weirdness
-     * otherwise.
+     * otherwise. If number of lines exceeds maxLines, it will
+     * scroll downwards and display bottommost line, cutting off
+     * the top.
      *
      * @param batch  Sprite batch to draw to
      * @param text   String to render
@@ -27,17 +29,46 @@ public class DrawText {
      * @param y      y position of top corner
      * @param w      width of rectangle
      * @param h      height of rectangle
+     * @param maxLines Most lines that can fit on screen
      */
-    public static void drawTextRect(SpriteBatch batch, String text, MonospaceFontData data, int x, int y, int w, int h) {
-        int rows = (int)(h / data.charHeight);
+    public static void drawTextRect(SpriteBatch batch, String text, MonospaceFontData data, int x, int y, int w, int h, int maxLines) {
         int cols = (int)(w / data.charWidth);
-        int index = 0;
         Array<String> chunked = chunkString(text, cols);
+        int bound = Math.max(0, chunked.size - maxLines);
 
-        while (index < rows && index < chunked.size) {
-            data.font.draw(batch, chunked.get(index), x, y - (int)(data.charHeight * index * 1.5));
-            index++;
+        for (int index = chunked.size - 1; index >= bound; index--) {
+            String line = chunked.get(index);
+            if (line.startsWith(" ") && !line.startsWith("  "))
+                line = line.substring(1);
+            data.font.draw(batch, line, x, y - (int)(data.charHeight * (index - bound) * 1.5));
         }
+    }
+
+    /**
+     * Calculate how many characters can fit in a rectangle
+     * of given width and height.
+     *
+     * @param data Font data to render
+     * @param w Width of rect
+     * @param h Height of rect
+     * @return Number of characters
+     */
+    public static int charsFitInRect(MonospaceFontData data, int w, int h) {
+        int cols = (int)(w / data.charWidth);
+        int rows = (int)(h / (data.charHeight * 1.5));
+        return cols * rows;
+    }
+
+    /**
+     * Calculate how many lines can fit in
+     * a region of given height
+     *
+     * @param data Font data to render
+     * @param h Height of rect
+     * @return Number of lines
+     */
+    public static int linesFitInHeight(MonospaceFontData data, int h) {
+        return (int)(h / (data.charHeight * 1.5));
     }
 
     /**

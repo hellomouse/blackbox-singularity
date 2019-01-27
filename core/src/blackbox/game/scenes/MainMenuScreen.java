@@ -9,7 +9,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
@@ -28,7 +27,6 @@ public class MainMenuScreen extends BlackBoxScreen {
      */
     private Music backgroundMusic;
     private Table guiTable;
-    private Stage stage;
 
     /**
      * Generator for main menu options. menuButtonLabels is the array
@@ -48,11 +46,11 @@ public class MainMenuScreen extends BlackBoxScreen {
     private static Screen generateScreenFromIndex(int index, BlackboxGame game) {
         switch (index) {
             case 0: return new TestScreen(game);
-            case 1: return new TestScreen(game);
-            case 2: return new TestScreen(game);
-            case 3: return new TestScreen(game);
-            case 4: return new TestScreen(game);
-            case 5: return new TestScreen(game);
+            case 1: return new LoadingScreen(game);
+            case 2: return new LoadingScreen(game);
+            case 3: return new LoadingScreen(game);
+            case 4: return new LoadingScreen(game);
+            case 5: return new StoryScreen(game);
         }
         return null;
     }
@@ -63,10 +61,6 @@ public class MainMenuScreen extends BlackBoxScreen {
      */
     public MainMenuScreen(final BlackboxGame game) {
         super(game, new TitleScreenScene(game));
-
-        /* Construct stage that holds GUI */
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
 
         /* Load music */
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
@@ -107,16 +101,6 @@ public class MainMenuScreen extends BlackBoxScreen {
     }
 
     @Override
-    public void render(float delta) {
-        super.render(delta);
-
-        /* Only new thing to render are buttons */
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
-    }
-
-
-    @Override
     public void resize(int width, int height) {
         game.generateFonts();
     }
@@ -128,8 +112,7 @@ public class MainMenuScreen extends BlackBoxScreen {
     }
 
     @Override
-    public void hide() {
-    }
+    public void hide() {}
 
     @Override
     public void pause() {

@@ -16,7 +16,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import blackbox.game.graphics.util.Rectangle;
+import blackbox.game.util.MathUtil;
+
+
 import java.awt.Window;
+
+import static blackbox.game.graphics.BackgroundScene.BG_HEIGHT;
+import static blackbox.game.graphics.BackgroundScene.BG_WIDTH;
 
 public class TestScreen extends BlackBoxScreen {
 
@@ -25,9 +32,7 @@ public class TestScreen extends BlackBoxScreen {
 
     public Music backgroundMusic;
 
-
     /* Config for menu */
-    private int textLeft, textTop, menuShift, menuSpacing;
 
     public TestScreen(final BlackboxGame game) {
         super(game, new OfficeNormalBackgroundScene(game));
@@ -35,14 +40,9 @@ public class TestScreen extends BlackBoxScreen {
         /* Load music */
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
 
-        /* Text spacing */
-        textLeft = Config.WINDOW_WIDTH / 30;
-        textTop = (int)(Config.WINDOW_HEIGHT * 0.7) - BlackboxGame.fontSizes[0];
-        menuShift = BlackboxGame.fontSizes[0] * 2 + (int)(Config.WINDOW_HEIGHT * 0.06);
-        menuSpacing = BlackboxGame.fontSizes[2] * 2;
-
         scene.typeText("Hellomouse OS v1.2.3\n Totally not a fake readme There is text here! You should read it!", 20); // 20
 
+        // addBlackBars();
     }
 
     @Override

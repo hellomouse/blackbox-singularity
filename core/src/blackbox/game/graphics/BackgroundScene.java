@@ -1,17 +1,14 @@
 package blackbox.game.graphics;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import blackbox.game.BlackboxGame;
-import blackbox.game.Config;
 import blackbox.game.util.MonospaceFontData;
 import blackbox.game.util.DrawText;
 import blackbox.game.util.MathUtil;
-import contribs.postprocessing.PostProcessor;
-import contribs.postprocessing.effects.Curvature;
-import contribs.utils.ShaderLoader;
 
 /**
  * BackgroundScene
@@ -36,8 +33,8 @@ public abstract class BackgroundScene {
      */
     public static final int BG_WIDTH = 1920;
     public static final int BG_HEIGHT = 1080;
-    public static final int IMAGE_WIDTH = 4590;
-    public static final int IMAGE_HEIGHT = 1080;
+    public int imageWidth;
+    public int imageHeight;
 
     /**
      * screenRect       - [x, y, w, h], region to display text
@@ -48,8 +45,11 @@ public abstract class BackgroundScene {
      * currentCharCount - Number of characters to render on the screen at moment
      * typingSpeed      - char/delta to type on screen. 20 is a good speed.
      * scroll           - How far image is scrolled left or right. More negative is more right facing, starts at 0 (left)
+     * initialScroll    - Very first scroll value
      *
      * fontData          - The font to display on the screen. MUST BE MONOSPACED
+     * maxLinesOnScreen  - The most characters that can fit on the screen at a time
+     * typing            - Is it currently typing?
      */
     public int[] screenRect;
     public float flickerIntensity;
@@ -60,13 +60,16 @@ public abstract class BackgroundScene {
     private float typingSpeed;
 
     public int scroll;
+    public int initialScroll;
     private MonospaceFontData fontData;
+    private int maxLinesOnScreen;
+    public boolean typing;
 
     /**
      * The image texture and background
      * to be rendered to the screen. All image
      * textures should be the size as defined by
-     * IMAGE_WIDTH and IMAGE_HEIGHT
+     * imageWidth and imageHeight
      */
     private TextureRegion background;
 
@@ -82,6 +85,24 @@ public abstract class BackgroundScene {
      */
     public BackgroundScene(int[] screenRect, float flickerIntensity, String name, String imagePath,
                            MonospaceFontData fontData) {
+        this(screenRect, flickerIntensity, name, imagePath, fontData, 4590, 1080);
+    }
+
+    /**
+     * Create a new background scene object. Please override this method in your subclass.
+     * The imageWidth and imageHeight is the resolution of the background image file, which
+     * DEFAULTS to 4590x1080. If you don't include them, then it will default to those.
+     *
+     * @param screenRect       Defines pixel region of screen: {x, y, w, h}
+     * @param flickerIntensity Defines percentage to flicker (0-1.0f)
+     * @param name             Name of the scene
+     * @param imagePath        Texture path to image, relative to assets folder in android
+     * @param fontData         Fontdata for the font to render the screen in
+     * @param imageWidth       Width of bg image (px)
+     * @param imageHeight      Height of bg image (px)
+     */
+    public BackgroundScene(int[] screenRect, float flickerIntensity, String name, String imagePath,
+                           MonospaceFontData fontData, int imageWidth, int imageHeight) {
         this.screenRect = screenRect;
         this.flickerIntensity = flickerIntensity;
         this.name = name;
@@ -89,11 +110,19 @@ public abstract class BackgroundScene {
 
         this.screenText = "";
         this.currentCharCount = 0;
-        this.scroll = -MathUtil.ratioW(IMAGE_WIDTH, BG_WIDTH) / 4;
+        this.scroll = -MathUtil.ratioH(imageWidth, imageHeight) / 4;
+        this.initialScroll = this.scroll;
 
         /* Load the background texture */
-        Texture img = new Texture(imagePath);
-        this.background = new TextureRegion(img, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        if (imagePath != null) {
+            Texture img = new Texture(imagePath);
+            this.background = new TextureRegion(img, 0, 0, imageWidth, imageHeight);
+        }
+
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.maxLinesOnScreen = screenRect != null ? DrawText.linesFitInHeight(fontData, screenRect[3]) : 0;
+        this.typing = false;
     }
 
     /**
@@ -103,27 +132,24 @@ public abstract class BackgroundScene {
      * @param game  Game object
      */
     public void render(float delta, SpriteBatch batch, BlackboxGame game) {
-        // Limit scroll to edges of image
-        if (scroll > 0)
-            scroll = 0;
-        if (scroll < - MathUtil.ratioW(IMAGE_WIDTH, BG_WIDTH) + MathUtil.ratioW(1, 1))
-            scroll = - MathUtil.ratioW(IMAGE_WIDTH, BG_WIDTH) + MathUtil.ratioW(1, 1);
+        this.renderBackground(delta, batch, game);
+        this.renderText(delta, batch, game);
+    }
 
-        // Flickering effect
-        float brightness = (float)(Math.random() * (this.flickerIntensity) + (1 - this.flickerIntensity));
-        batch.setColor(brightness, brightness, brightness, 1F);
-
-        // Draw the background image
-        batch.draw(background, scroll, 0,
-                   MathUtil.ratioW(IMAGE_WIDTH, BG_WIDTH),
-                   MathUtil.ratioH(IMAGE_HEIGHT, BG_HEIGHT));
-        batch.setColor(1f,1f,1f,1f); // Reset brightness
-
+    /**
+     * Render the background text (not including UI or image)
+     * @param delta Delta, incremented each frame by libgdx
+     * @param batch SpriteBatch to draw this to
+     * @param game  Game object
+     */
+    public void renderText(float delta, SpriteBatch batch, BlackboxGame game) {
         // Render the text by current character count
         if (this.screenText.length() > 0) {
             this.currentCharCount += delta * this.typingSpeed;
-            if (this.currentCharCount > this.screenText.length())
+            if (this.currentCharCount > this.screenText.length()) {
                 this.currentCharCount = this.screenText.length();
+                this.typing = false;
+            }
 
             DrawText.drawTextRect(batch,
                     this.screenText.substring(0, (int) this.currentCharCount),
@@ -131,8 +157,34 @@ public abstract class BackgroundScene {
                     MathUtil.ratioW(this.screenRect[0], BG_WIDTH) + scroll,
                     MathUtil.ratioH(this.screenRect[1], BG_HEIGHT),
                     MathUtil.ratioW(this.screenRect[2], BG_WIDTH),
-                    MathUtil.ratioH(this.screenRect[3], BG_HEIGHT));
+                    MathUtil.ratioH(this.screenRect[3], BG_HEIGHT),
+                    this.maxLinesOnScreen);
         }
+    }
+
+    /**
+     * Render the background image (not including UI or text)
+     * @param delta Delta, incremented each frame by libgdx
+     * @param batch SpriteBatch to draw this to
+     * @param game  Game object
+     */
+    public void renderBackground(float delta, SpriteBatch batch, BlackboxGame game) {
+        // Limit scroll to edges of image
+        if (scroll > 0)
+            scroll = 0;
+        if (scroll < - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1))
+            scroll = - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1);
+
+        // Flickering effect
+        float brightness = (float)(Math.random() * (this.flickerIntensity) + (1 - this.flickerIntensity));
+        batch.setColor(brightness, brightness, brightness, 1F);
+
+        // Draw the background image
+        if (background != null)
+            batch.draw(background, scroll, 0,
+                    MathUtil.ratioH(imageWidth, imageHeight),
+                    Gdx.graphics.getHeight());
+        batch.setColor(1f,1f,1f,1f); // Reset brightness
     }
 
     /**
@@ -165,6 +217,7 @@ public abstract class BackgroundScene {
     public void typeText(String text, float speed) {
         this.typingSpeed = speed;
         this.screenText += this.screenText.length() > 0 ? " " + text : text;
+        this.typing = true;
     }
 
     /**

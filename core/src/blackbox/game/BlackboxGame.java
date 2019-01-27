@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -25,7 +28,7 @@ public class BlackboxGame extends Game {
      * to dynamically create font
      */
     public static final String[] fontSizeNames = {"title3", "title2", "title1", "normal", "small"};
-    public static final int[] fontSizes = {70, 44, 38, 24, 18};
+    public static final int[] fontSizes = {70, 44, 38, 32, 18};
 
     public ObjectMap<String, BitmapFont> monoNormalFont;
     public ObjectMap<String, BitmapFont> robotoLightFont;
@@ -63,7 +66,7 @@ public class BlackboxGame extends Game {
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
             /* Generate the font and add to map */
-            parameter.size = (int)((double)fontSizes[i] / 1080 * Gdx.graphics.getHeight());
+            parameter.size = (int)((double)fontSizes[i] / Config.BASE_HEIGHT * Gdx.graphics.getHeight());
             parameter.minFilter = Texture.TextureFilter.Nearest;
             parameter.magFilter = Texture.TextureFilter.MipMapLinearNearest;
 
@@ -74,6 +77,43 @@ public class BlackboxGame extends Game {
             generator.dispose();
         }
         return map;
+    }
+
+    public BitmapFont getBitMapFont(String file, double size, Color color) {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(file));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        /* Generate the font and add to map */
+        parameter.size = (int)(size / Config.BASE_HEIGHT * Gdx.graphics.getHeight());
+        parameter.minFilter = Texture.TextureFilter.Nearest;
+        parameter.magFilter = Texture.TextureFilter.MipMapLinearNearest;
+
+        BitmapFont temp = generator.generateFont(parameter);
+        temp.setColor(color);
+
+        /* Dispose of generator to avoid memory leaks */
+        generator.dispose();
+        return temp;
+    }
+
+    public BitmapFont getBitMapFont(String file, double size) {
+        return getBitMapFont(file, size, Color.BLACK);
+    }
+
+    public static TextButton.TextButtonStyle getTextButtonStyle(BitmapFont font, Color color, Color overCover) {
+        TextButton.TextButtonStyle r = new TextButton.TextButtonStyle();
+        r.font = font;
+        r.fontColor = color;
+        r.overFontColor = overCover;
+        return r;
+    }
+
+    public static void removeActor(Table container, Actor actor) {
+        Cell cell = container.getCell(actor);
+        actor.remove();
+        // remove cell from table
+        container.getCells().removeValue(cell, true);
+        container.invalidate();
     }
 
     public void generateFonts() {

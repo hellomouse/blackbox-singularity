@@ -21,6 +21,7 @@ public class TitleScreenScene extends BackgroundScene {
      * mid   - temp variable to save mid point coordinate
      * theta - variable to save view angle
      * logo  - game logo
+     * top, bottom - Top and bottom rectangle graphics
      */
     private int mid;
     private float theta = 0;
@@ -48,7 +49,7 @@ public class TitleScreenScene extends BackgroundScene {
         super.render(delta, batch, game);
 
         /* Update the scroll position */
-        mid = -MathUtil.ratioW(IMAGE_WIDTH, BG_WIDTH) / 4;
+        mid = -MathUtil.ratioW(this.imageWidth, BG_WIDTH) / 4;
         scroll = mid + (int)(Math.sin(theta) * mid);
         theta += 0.002;
         if (theta > 2 * Math.PI)

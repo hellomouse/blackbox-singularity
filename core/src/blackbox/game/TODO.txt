@@ -14,8 +14,11 @@ NOTE: BOTTOM LEFT CORNER IS TOP!
 custom cursor class
 
 Implement story runner code
+- timeouts
 
-Move conifgs to 1 file
+Bug in menu sekection - only last hcoice matters
+
+Increase curvature for title screen, but not for normal gameplay
 
 Make every variable public
     except read only
@@ -24,9 +27,17 @@ Make every variable public
 title screen
     randomize art
     different title screen depending on level
-background scene
-    don't hard code image size, use customizable image size (constructor)
 
+drawtext 1.5 to a variable (lineHiehgt in config)
+
+fade out options until at rightmost scroll
+    or scroll optionsList
+
+better text line breaking - try not to break words
+
+bug with last character missing on thing
+
+add reflection on monitor for realism
 
 Class implementaitons
     Conversation
