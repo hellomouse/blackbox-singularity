@@ -39,12 +39,14 @@ public class StoryScreen extends BlackBoxScreen {
      *
      * - PLAYER_TYPE_SPEED: Typing speed when player inputs their choice (Should be fast
      *                      so time isn't spent reading selection)
-     * - CHOICE_PADDING: Padding between optionss
+     * - CHOICE_PADDING: Padding between options
+     * - SCROLL_SPEED: How fast the scene can scroll (LEFT & RIGHT ARROWS)
      */
     public static final float CHOICE_INITIAL_TIME = 0.2f;
     public static final float CHOICE_TIME_INC = 0.3f;
     public static final float PLAYER_TYPE_SPEED = 50f;
     public static final float CHOICE_PADDING = 25f;
+    public static final int SCROLL_SPEED = 20;
 
     private Table guiTable;
     private Array<TextButton> choices;
@@ -120,8 +122,21 @@ public class StoryScreen extends BlackBoxScreen {
                         @Override
                         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                             scene.typeText("\n\n> " + choice.displayText + "\n\n", PLAYER_TYPE_SPEED);
-                            story.currentChatNode.getChoices().get(choice2).onSelect(story);
-                            renderCurrentChoice();
+
+                            /*
+                             * After the player finishes typing their choice (delay calculated
+                             * by (choice length + 6) / player type speed (The 6 accounts for the
+                             * "\n\n\n\n> " added in the typing)
+                             *
+                             * Execute the next choice and update choice display
+                             */
+                            Timer.schedule(new Timer.Task() {
+                                @Override
+                                public void run() {
+                                    story.currentChatNode.getChoices().get(choice2).onSelect(story);
+                                    renderCurrentChoice();
+                                }
+                            }, (choice.displayText.length() + 6) / PLAYER_TYPE_SPEED);
                             return true;
                         }
                     });
@@ -140,9 +155,9 @@ public class StoryScreen extends BlackBoxScreen {
         super.render(delta);
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            scene.scroll -= 20;
+            scene.scroll -= SCROLL_SPEED;
         } if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            scene.scroll += 20;
+            scene.scroll += SCROLL_SPEED;
         }
 
     }
