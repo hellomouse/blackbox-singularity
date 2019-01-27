@@ -1,5 +1,5 @@
 android {
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileSdkVersion 28
     sourceSets {
         main {
@@ -21,7 +21,7 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        minSdkVersion = 9
+        minSdkVersion 9
     }
     buildTypes {
         release {
