@@ -16,28 +16,28 @@ custom cursor class
 Implement story runner code
 - timeouts
 
-Bug in menu sekection - only last hcoice matters
+keyboard selection for choices
 
 Increase curvature for title screen, but not for normal gameplay
 
 Make every variable public
     except read only
 
-
 title screen
     randomize art
     different title screen depending on level
 
-drawtext 1.5 to a variable (lineHiehgt in config)
-
-fade out options until at rightmost scroll
-    or scroll optionsList
-
-better text line breaking - try not to break words
-
-bug with last character missing on thing
+when typing test trim the character count so string doesn't grow infinitely large
 
 add reflection on monitor for realism
+
+Use StringBuilder to incremenet typing
+    or use array
+
+AI types text 1 line at a time, player 1 char at a time?
+
+Colored text for player typing
+
 
 Class implementaitons
     Conversation

@@ -45,7 +45,7 @@ public class MainMenuScreen extends BlackBoxScreen {
      */
     private static Screen generateScreenFromIndex(int index, BlackboxGame game) {
         switch (index) {
-            case 0: return new TestScreen(game);
+            case 0: return new StoryScreen(game);
             case 1: return new LoadingScreen(game);
             case 2: return new LoadingScreen(game);
             case 3: return new LoadingScreen(game);
@@ -79,17 +79,15 @@ public class MainMenuScreen extends BlackBoxScreen {
          * the first element is the value i in the loop, since
          * the InputListener requires parameters to be final
          */
-        final int[] index = {0};
-
         for (int i = 0; i < menuButtonLabels.length; i++) {
             TextButton button = new TextButton(menuButtonLabels[i], game.textButtonStyle1);
-            index[0] = i;
+            final int j = i;
 
             button.addListener(new InputListener(){
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     dispose(); // Run first to dispose of shader so new screen can use shader
-                    game.setScreen(generateScreenFromIndex(index[0], game));
+                    game.setScreen(generateScreenFromIndex(j, game));
                     return true;
                 }});
 

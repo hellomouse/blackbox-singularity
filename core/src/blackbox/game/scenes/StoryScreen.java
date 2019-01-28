@@ -3,7 +3,7 @@ package blackbox.game.scenes;
 import blackbox.game.*;
 import blackbox.game.conversation.Conversation;
 import blackbox.game.conversation.graph.Choice;
-import blackbox.game.conversation.story.Mystory;
+import blackbox.game.conversation.story.TestStory;
 import blackbox.game.graphics.BlackBoxScreen;
 import blackbox.game.graphics.scenes.OfficeNormalBackgroundScene;
 
@@ -50,6 +50,7 @@ public class StoryScreen extends BlackBoxScreen {
 
     private Table guiTable;
     private Array<TextButton> choices;
+    private Array<Label> choiceLabels;
 
     private TextButton.TextButtonStyle choiceStyle;
     private Label.LabelStyle labelStyle;
@@ -77,7 +78,7 @@ public class StoryScreen extends BlackBoxScreen {
         choiceStyle = BlackboxGame.getTextButtonStyle(game.robotoLightFont.get("normal"), Color.LIGHT_GRAY, Color.WHITE);
         labelStyle = new Label.LabelStyle(game.robotoLightFont.get("small"), Color.WHITE);
 
-        story = new Mystory(null);
+        story = new TestStory(null);
         story.gotoStart();
         renderCurrentChoice();
     }
@@ -88,6 +89,7 @@ public class StoryScreen extends BlackBoxScreen {
 
         /* Clear the table and choice array when updating choices */
         choices = new Array<TextButton>();
+        choiceLabels = new Array<Label>();
         guiTable.clearChildren();
 
         /*
@@ -117,11 +119,26 @@ public class StoryScreen extends BlackBoxScreen {
                     optionLabel.addAction(Actions.fadeIn(CHOICE_INITIAL_TIME + CHOICE_TIME_INC * i));
 
                     /* When choice is selected go to the next one */
-                    final int choice2 = i;
+                    final float delayBeforeNextChoice = (choice.displayText.length() + 6) / PLAYER_TYPE_SPEED;
+                    final int choiceIndex = i;
+
                     button.addListener(new InputListener() {
                         @Override
                         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                             scene.typeText("\n\n> " + choice.displayText + "\n\n", PLAYER_TYPE_SPEED);
+
+                            /* Fade out all current choices, fading the selected one last
+                             * All other choices fade at same rate */
+                            int diff;
+                            for (int i = 0; i < choices.size; i++) {
+                                diff = i == choiceIndex ? 1 : 0;
+
+                                float fadeTime = CHOICE_INITIAL_TIME + CHOICE_TIME_INC * diff;
+                                fadeTime = Math.min(fadeTime, delayBeforeNextChoice); // Max out when next choice loads for smooth fade
+
+                                choices.get(i).addAction(Actions.fadeOut(fadeTime));
+                                choiceLabels.get(i).addAction(Actions.fadeOut(fadeTime));
+                            }
 
                             /*
                              * After the player finishes typing their choice (delay calculated
@@ -133,17 +150,19 @@ public class StoryScreen extends BlackBoxScreen {
                             Timer.schedule(new Timer.Task() {
                                 @Override
                                 public void run() {
-                                    story.currentChatNode.getChoices().get(choice2).onSelect(story);
+                                    story.currentChatNode.getChoices().get(choiceIndex).onSelect(story);
                                     renderCurrentChoice();
                                 }
-                            }, (choice.displayText.length() + 6) / PLAYER_TYPE_SPEED);
+                            }, delayBeforeNextChoice);
                             return true;
                         }
                     });
 
                     guiTable.add(button).left().padBottom(CHOICE_PADDING).width(tableWidth);
                     guiTable.row().row();
+
                     choices.add(button);
+                    choiceLabels.add(optionLabel);
                     i++;
                 }
             }
@@ -156,8 +175,10 @@ public class StoryScreen extends BlackBoxScreen {
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
             scene.scroll -= SCROLL_SPEED;
+            guiTable.setPosition(Gdx.graphics.getWidth() - tableWidth + scene.scroll - scene.initialScroll, 0);
         } if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             scene.scroll += SCROLL_SPEED;
+            guiTable.setPosition(Gdx.graphics.getWidth() - tableWidth + scene.scroll - scene.initialScroll, 0);
         }
 
     }

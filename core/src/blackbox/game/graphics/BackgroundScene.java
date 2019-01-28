@@ -111,7 +111,6 @@ public abstract class BackgroundScene {
         this.screenText = "";
         this.currentCharCount = 0;
         this.scroll = -MathUtil.ratioH(imageWidth, imageHeight) / 4;
-        this.initialScroll = this.scroll;
 
         /* Load the background texture */
         if (imagePath != null) {
@@ -123,6 +122,9 @@ public abstract class BackgroundScene {
         this.imageHeight = imageHeight;
         this.maxLinesOnScreen = screenRect != null ? DrawText.linesFitInHeight(fontData, screenRect[3]) : 0;
         this.typing = false;
+
+        limitScroll();
+        this.initialScroll = this.scroll;
     }
 
     /**
@@ -157,7 +159,6 @@ public abstract class BackgroundScene {
                     MathUtil.ratioW(this.screenRect[0], BG_WIDTH) + scroll,
                     MathUtil.ratioH(this.screenRect[1], BG_HEIGHT),
                     MathUtil.ratioW(this.screenRect[2], BG_WIDTH),
-                    MathUtil.ratioH(this.screenRect[3], BG_HEIGHT),
                     this.maxLinesOnScreen);
         }
     }
@@ -169,11 +170,7 @@ public abstract class BackgroundScene {
      * @param game  Game object
      */
     public void renderBackground(float delta, SpriteBatch batch, BlackboxGame game) {
-        // Limit scroll to edges of image
-        if (scroll > 0)
-            scroll = 0;
-        if (scroll < - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1))
-            scroll = - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1);
+        limitScroll();
 
         // Flickering effect
         float brightness = (float)(Math.random() * (this.flickerIntensity) + (1 - this.flickerIntensity));
@@ -185,6 +182,18 @@ public abstract class BackgroundScene {
                     MathUtil.ratioH(imageWidth, imageHeight),
                     Gdx.graphics.getHeight());
         batch.setColor(1f,1f,1f,1f); // Reset brightness
+    }
+
+    /**
+     * Helper to limit the scroll variable to edge of
+     * the background image
+     */
+    private void limitScroll() {
+        // Limit scroll to edges of image
+        if (scroll > 0)
+            scroll = 0;
+        if (scroll < - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1))
+            scroll = - MathUtil.ratioH(imageWidth, imageHeight) + MathUtil.ratioW(1, 1);
     }
 
     /**

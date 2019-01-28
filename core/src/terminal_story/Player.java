@@ -1,7 +1,7 @@
 package terminal_story;
 
 import blackbox.game.conversation.graph.Choice;
-import blackbox.game.conversation.story.Mystory;
+import blackbox.game.conversation.story.TestStory;
 import blackbox.game.conversation.Conversation;
 
 import java.util.InputMismatchException;
@@ -20,7 +20,7 @@ import java.util.Scanner;
 public class Player {
     public static void main (String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Conversation story = new Mystory(null);
+        Conversation story = new TestStory(null);
         story.gotoStart();
 
         while (true) {

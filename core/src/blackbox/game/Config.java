@@ -31,12 +31,6 @@ public final class Config {
     public static final double LOGO_PADDING = 0.067;
 
     /**
-     * Loading screen config
-     * - LOADING_LOGO_WIDTH_PERCENT: Percent of widht the logo in loading screen takes up
-     */
-    public static final double LOADING_LOGO_WIDTH_PERCENT = 0.15;
-
-    /**
      * In game graphics config
      * - STORY_BAR_HEIGHT_RATIO: Height proportion (0-1) of the black bars in some story scenes
      * - STORY_BAR_ALPHA: Alpha (0-1.0f) of the black story bars
