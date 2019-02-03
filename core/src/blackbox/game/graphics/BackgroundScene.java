@@ -9,6 +9,7 @@ import blackbox.game.BlackboxGame;
 import blackbox.game.util.MonospaceFontData;
 import blackbox.game.util.DrawText;
 import blackbox.game.util.MathUtil;
+import blackbox.game.util.Random;
 
 /**
  * BackgroundScene
@@ -57,7 +58,7 @@ public abstract class BackgroundScene {
 
     private String screenText;
     private float currentCharCount;
-    private float typingSpeed;
+    public float typingSpeed;
 
     public int scroll;
     public int initialScroll;
@@ -72,6 +73,7 @@ public abstract class BackgroundScene {
      * imageWidth and imageHeight
      */
     private TextureRegion background;
+    public double glitchIntensity;
 
     /**
      * Create a new background scene object. Please override
@@ -125,6 +127,7 @@ public abstract class BackgroundScene {
 
         limitScroll();
         this.initialScroll = this.scroll;
+        this.glitchIntensity = 0;
     }
 
     /**
@@ -153,8 +156,11 @@ public abstract class BackgroundScene {
                 this.typing = false;
             }
 
+            String textToDraw = this.screenText.substring(0, (int) this.currentCharCount);
+            textToDraw = Random.randomGlitch2(textToDraw, this.glitchIntensity);
+
             DrawText.drawTextRect(batch,
-                    this.screenText.substring(0, (int) this.currentCharCount),
+                    textToDraw,
                     this.fontData,
                     MathUtil.ratioW(this.screenRect[0], BG_WIDTH) + scroll,
                     MathUtil.ratioH(this.screenRect[1], BG_HEIGHT),
@@ -221,10 +227,8 @@ public abstract class BackgroundScene {
      *
      * NOTE: screen won't be updated until next render() call
      * @param text  Text to render onto the screen.
-     * @param speed Speed to type the text (char/delta)
      */
-    public void typeText(String text, float speed) {
-        this.typingSpeed = speed;
+    public void typeText(String text) {
         this.screenText += this.screenText.length() > 0 ? " " + text : text;
         this.typing = true;
     }

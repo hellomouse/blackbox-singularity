@@ -26,7 +26,7 @@ public class OfficeNormalBackgroundScene extends BackgroundScene {
      */
     private Texture backgroundLight;
     public int doorOverlayWidth = bgImgWidth;
-    public boolean beginDoorClose = true;
+    public boolean beginDoorClose = false;
     public int doorCloseSpeed = 14;
 
     /**

@@ -4,7 +4,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ObjectMap;
+
+import blackbox.game.BlackboxGame;
 import blackbox.game.conversation.graph.*;
+import blackbox.game.graphics.BlackBoxScreen;
 
 /**
  * Contains all the chat nodes and choices
@@ -34,7 +37,7 @@ public abstract class Conversation {
      * chatNodes   - Map of nodeId: chatNode
      */
     public AiChatData aiData;
-    private Screen screen;
+    private BlackBoxScreen screen;
 
     public ChatNode currentChatNode;
     private String title;
@@ -55,7 +58,7 @@ public abstract class Conversation {
      * @param subtitle     Subtitle of conversation
      * @param backgroundId Id of background
      */
-    public Conversation(Screen screen, String title, String subtitle, String backgroundId) {
+    public Conversation(BlackBoxScreen screen, String title, String subtitle, String backgroundId) {
         this.screen = screen;
         this.title = title;
         this.subtitle = subtitle;
@@ -104,7 +107,7 @@ public abstract class Conversation {
      * Returns the screen the conversation belongs to
      * @return Screen
      */
-    public Screen getScreen() {
+    public BlackBoxScreen getScreen() {
         return screen;
     }
 

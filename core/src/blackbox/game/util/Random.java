@@ -55,6 +55,11 @@ public final class Random {
     public static String randomGlitch2(String text, double glitchPercent) {
         for (int i = 0; i < text.length() * glitchPercent; i++) {
             int r = randInt(0, text.length());
+
+            /* Don't slice out new lines */
+            if (text.substring(r, r + 1).equals("\n"))
+                continue;
+
             text = text.substring(0, r) + choice(glitchChar) + text.substring(r + 1);
         }
         return text;

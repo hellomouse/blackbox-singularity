@@ -58,16 +58,12 @@ public class StoryScreen extends BlackBoxScreen {
     private int tableWidth;
 
     public Conversation story;
-    public float typingSpeed;
 
     public StoryScreen(final BlackboxGame game) {
         super(game, new OfficeNormalBackgroundScene(game));
 
-        /* Variable config */
-        this.typingSpeed = 25f;
-
         /* Generate the table for the choices */
-        tableWidth = Gdx.graphics.getWidth() / 3;
+        tableWidth = (int)(Gdx.graphics.getWidth() / 3.1);
 
         guiTable = new Table();
         guiTable.setPosition(Gdx.graphics.getWidth() - tableWidth, 0);
@@ -78,95 +74,128 @@ public class StoryScreen extends BlackBoxScreen {
         choiceStyle = BlackboxGame.getTextButtonStyle(game.robotoLightFont.get("normal"), Color.LIGHT_GRAY, Color.WHITE);
         labelStyle = new Label.LabelStyle(game.robotoLightFont.get("small"), Color.WHITE);
 
-        story = new TestStory(null);
+        story = new TestStory(this);
         story.gotoStart();
         renderCurrentChoice();
     }
 
     private void renderCurrentChoice() {
-        //TODO timeout
-        scene.typeText(story.currentChatNode.getText(), this.typingSpeed);
+        story.currentChatNode.onLoad(story);
+        scene.typeText(story.currentChatNode.getText());
 
         /* Clear the table and choice array when updating choices */
         choices = new Array<TextButton>();
         choiceLabels = new Array<Label>();
         guiTable.clearChildren();
 
+        /* Timeout timer for the choice */
+        if (story.currentChatNode.getTimeout() > 0) {
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() { executeChoice(story.currentChatNode.getTimeoutChoice(), 0); }
+            }, story.currentChatNode.getTimeout() / 1000f); /* Time given in ms, divide by 1000 */
+        }
+
         /*
          * Calculate the delay required before displaying the choices, which
          * is equal to the number of characters to type / typing speed
          */
-        float calculatedDelay = story.currentChatNode.getText().length() / this.typingSpeed;
-        Timer.schedule(new Timer.Task(){
+        float calculatedDelay = story.currentChatNode.getText().length() / this.scene.typingSpeed;
+        if (calculatedDelay > 0 && story.currentChatNode.getChoices().size > 0) {
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    int i = 0;
+                    for (final Choice choice : story.currentChatNode.getChoices()) {
+                        /* Button to click on a choice */
+                        TextButton button = new TextButton(choice.label, choiceStyle);
+                        button.getLabel().setAlignment(Align.left);
+                        button.getLabel().setWidth(tableWidth);
+                        button.getLabel().setWrap(true);
+
+                        /* Tiny label on top of the choice */
+                        Label optionLabel = new Label("OPTION " + (i + 1), labelStyle);
+                        optionLabel.setAlignment(Align.left);
+                        guiTable.add(optionLabel).left().pad(0).width(tableWidth).row();
+
+                        /* Fade in effect when choice is loaded: all choices fade
+                         * in from the top to bottom */
+                        button.getColor().a = 0.0f;
+                        optionLabel.getColor().a = 0.0f;
+                        button.addAction(Actions.fadeIn(CHOICE_INITIAL_TIME + CHOICE_TIME_INC * i));
+                        optionLabel.addAction(Actions.fadeIn(CHOICE_INITIAL_TIME + CHOICE_TIME_INC * i));
+
+                        /* When choice is selected go to the next one */
+                        final int choiceIndex = i;
+
+                        button.addListener(new InputListener() {
+                            @Override
+                            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                                executeChoice(choice, choiceIndex);
+                                return true;
+                            }
+                        });
+
+                        guiTable.add(button).left().padBottom(CHOICE_PADDING).width(tableWidth);
+                        guiTable.row().row();
+
+                        choices.add(button);
+                        choiceLabels.add(optionLabel);
+                        i++;
+                    }
+                }
+            }, calculatedDelay);
+        }
+    }
+
+    /**
+     * "Select" a given choice parameter
+     * @param choice      Choice object to select
+     * @param choiceIndex Index of the selected choice (For fading animation)
+     */
+    public void executeChoice(final Choice choice, int choiceIndex) {
+        /* Calculate time before displaying next choice, which is length + 6 over speed.
+         * The 6 accounts for the \n\n> and \n\n added to the displayText */
+        final float delayBeforeNextChoice = (choice.displayText.length() + 6) / PLAYER_TYPE_SPEED;
+        scene.typingSpeed = PLAYER_TYPE_SPEED;
+
+        /* Type user text, ie > I made this choice */
+        if (choice.displayText.length() > 0)
+            scene.typeText("\n\n> " + choice.displayText + "\n\n");
+
+        /* Create newline for next node if no text is there. Only do
+         * this if chat node contained actual text, since empty chatnodes
+          * are often just for graphics/code and not story */
+        else if (story.currentChatNode.getText().length() > 0)
+            scene.typeText("\n\n");
+
+        /* Fade out all current choices, fading the selected one last
+         * All other choices fade at same rate */
+        int diff;
+        for (int i = 0; i < choices.size; i++) {
+            diff = i == choiceIndex ? 1 : 0;
+
+            float fadeTime = CHOICE_INITIAL_TIME + CHOICE_TIME_INC * diff;
+            fadeTime = Math.min(fadeTime, delayBeforeNextChoice); // Max out when next choice loads for smooth fade
+
+            choices.get(i).addAction(Actions.fadeOut(fadeTime));
+            choiceLabels.get(i).addAction(Actions.fadeOut(fadeTime));
+        }
+
+        /*
+         * After the player finishes typing their choice (delay calculated
+         * by (choice length + 6) / player type speed (The 6 accounts for the
+         * "\n\n\n\n> " added in the typing)
+         *
+         * Execute the next choice and update choice display
+         */
+        Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                int i = 0;
-                for (final Choice choice : story.currentChatNode.getChoices()) {
-                    /* Button to click on a choice */
-                    TextButton button = new TextButton(choice.label, choiceStyle);
-                    button.getLabel().setAlignment(Align.left);
-
-                    /* Tiny label on top of the choice */
-                    Label optionLabel = new Label("OPTION " + (i + 1), labelStyle);
-                    optionLabel.setAlignment(Align.left);
-                    guiTable.add(optionLabel).left().pad(0).width(tableWidth).row();
-
-                    /* Fade in effect when choice is loaded: all choices fade
-                     * in from the top to bottom */
-                    button.getColor().a = 0.0f;
-                    optionLabel.getColor().a = 0.0f;
-                    button.addAction(Actions.fadeIn(CHOICE_INITIAL_TIME + CHOICE_TIME_INC * i));
-                    optionLabel.addAction(Actions.fadeIn(CHOICE_INITIAL_TIME + CHOICE_TIME_INC * i));
-
-                    /* When choice is selected go to the next one */
-                    final float delayBeforeNextChoice = (choice.displayText.length() + 6) / PLAYER_TYPE_SPEED;
-                    final int choiceIndex = i;
-
-                    button.addListener(new InputListener() {
-                        @Override
-                        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                            scene.typeText("\n\n> " + choice.displayText + "\n\n", PLAYER_TYPE_SPEED);
-
-                            /* Fade out all current choices, fading the selected one last
-                             * All other choices fade at same rate */
-                            int diff;
-                            for (int i = 0; i < choices.size; i++) {
-                                diff = i == choiceIndex ? 1 : 0;
-
-                                float fadeTime = CHOICE_INITIAL_TIME + CHOICE_TIME_INC * diff;
-                                fadeTime = Math.min(fadeTime, delayBeforeNextChoice); // Max out when next choice loads for smooth fade
-
-                                choices.get(i).addAction(Actions.fadeOut(fadeTime));
-                                choiceLabels.get(i).addAction(Actions.fadeOut(fadeTime));
-                            }
-
-                            /*
-                             * After the player finishes typing their choice (delay calculated
-                             * by (choice length + 6) / player type speed (The 6 accounts for the
-                             * "\n\n\n\n> " added in the typing)
-                             *
-                             * Execute the next choice and update choice display
-                             */
-                            Timer.schedule(new Timer.Task() {
-                                @Override
-                                public void run() {
-                                    story.currentChatNode.getChoices().get(choiceIndex).onSelect(story);
-                                    renderCurrentChoice();
-                                }
-                            }, delayBeforeNextChoice);
-                            return true;
-                        }
-                    });
-
-                    guiTable.add(button).left().padBottom(CHOICE_PADDING).width(tableWidth);
-                    guiTable.row().row();
-
-                    choices.add(button);
-                    choiceLabels.add(optionLabel);
-                    i++;
-                }
+                choice.onSelect(story);
+                renderCurrentChoice();
             }
-        }, calculatedDelay);
+        }, delayBeforeNextChoice);
     }
 
     @Override

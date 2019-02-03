@@ -13,9 +13,6 @@ NOTE: BOTTOM LEFT CORNER IS TOP!
 
 custom cursor class
 
-Implement story runner code
-- timeouts
-
 keyboard selection for choices
 
 Increase curvature for title screen, but not for normal gameplay
@@ -34,19 +31,27 @@ add reflection on monitor for realism
 Use StringBuilder to incremenet typing
     or use array
 
-AI types text 1 line at a time, player 1 char at a time?
-
 Colored text for player typing
+
+Commandss to implement in screen
+- play sound (from the conversation)
+- play music (from the conversation)
+- clear screen
+
+Compiler:
+don't generate choice array if no choices exist
+append name of the story chapter to choices
+automatically set music looping true
 
 
 Class implementaitons
     Conversation
         Import AiData automatically
-        naming scheme for title/subtitle
-
-glithcIntensity variable in BackgroundScene
-
 scale the font when window resize
+
+pause between player typing response and going to next one
+
+
 
 
 Add this

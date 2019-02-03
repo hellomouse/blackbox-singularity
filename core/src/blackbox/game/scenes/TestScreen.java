@@ -40,7 +40,7 @@ public class TestScreen extends BlackBoxScreen {
         /* Load music */
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("music/song1.wav"));
 
-        scene.typeText("Hellomouse OS v1.2.3\n Totally not a fake readme There is text here! You should read it!", 20); // 20
+        scene.typeText("Hellomouse OS v1.2.3\n Totally not a fake readme There is text here! You should read it!"); // 20
 
         // addBlackBars();
     }
